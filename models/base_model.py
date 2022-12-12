@@ -6,6 +6,7 @@ BaseClass Module - Contains implementation for the Base Class supercalss.
 
 import uuid
 import datetime
+from models import storage
 
 class BaseModel():
     """BaseModel class implementation.
@@ -28,6 +29,7 @@ class BaseModel():
             self.id = str(uuid.uuid4())
             self.created_at = datetime.datetime.now()
             self.last_updated = self.created_at
+            storage.new(self)
 
     def __str__(self):
         """Print this object"""
@@ -38,6 +40,7 @@ class BaseModel():
         """Save the instance"""
 
         self.last_updated = datetime.datetime.now()
+        storage.save()
 
     def to_dict(self):
         """Convert this object to dict"""
