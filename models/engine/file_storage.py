@@ -7,6 +7,7 @@ This module handles file storage for all the modules.
 
 import os
 import json
+from models.base_model import BaseModel
 
 class FileStorage():
     """FileStorage implementation class."""
@@ -25,7 +26,7 @@ class FileStorage():
     def new(self, obj):
         """Adds a new object to __objects with the key <class_name>.<id>"""
 
-        new_key = f'{obj.__class__.name}.{obj.id}'
+        new_key = f'{obj.__class__.__name__}.{obj.id}'
         self.__objects.update({new_key : obj})
 
     def save(self):
@@ -46,7 +47,7 @@ class FileStorage():
                 dict_of_objects = json.loads(json_file.read())
 
         for obj in dict_of_objects.values():
-            obj_to_add = eval(obj['__class__'](**obj))
+            obj_to_add = eval(obj['__class__'])(**obj)
             self.new(obj_to_add)
 
 
