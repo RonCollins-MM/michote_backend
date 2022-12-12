@@ -13,12 +13,21 @@ class BaseModel():
     Defines all the attributes and methods common to all child classes.
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """BaseModel constructor."""
 
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.datetime.now()
-        self.last_updated = self.created_at
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == '__class__':
+                    continue
+                if key == 'created_at' or key == 'last_updated':
+                    setattr(self, key, datetime.datetime.fromisoformat(value))
+                    continue
+                setattr(self, key, value)
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.datetime.now()
+            self.last_updated = self.created_at
 
     def __str__(self):
         """Print this object"""
