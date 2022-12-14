@@ -12,7 +12,7 @@ from models.base_model import BaseModel
 class FileStorage():
     """FileStorage implementation class."""
 
-    __file_path = 'michote_models.json'
+    __file_path = 'models.json'
     __objects = {}
 
     def __init__(self):
