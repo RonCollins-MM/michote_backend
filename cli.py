@@ -89,12 +89,40 @@ class MichoteCommand(cmd.Cmd):
         print('You may alternatively type the `quit` command.')
         self.__usage('EOF')
 
+    def help_show(self):
+        """Print info on ``show`` command to user"""
+        print('Use this command to print an object based on class name and ' +
+              'object id')
+        self.__usage('show')
+
+    def help_create(self):
+        """Print info on ``create`` command to user"""
+        print('Use this command to create a new object of a class.')
+        self.__usage('create')
+
+    def help_destroy(self):
+        """Print info on ``destroy`` command to user"""
+        print('Use this command to delete an object based on class name and ' +
+              'object id')
+        self.__usage('destroy')
+
+    def help_all(self):
+        """Print info on ``all`` command to user"""
+        print('Use this command to print an object based on class name and ' +
+              'object id. ')
+        self.__usage('all')
+
+    def help_update(self):
+        """Print info on ``update`` command to user"""
+        print('Use this command to update an object based on class name and ' +
+              'object id, with attribute name(s) and value(s)')
+        self.__usage('update')
+
     def __avail_classes(self):
         """Prints the valid classes that can be used with commands"""
         print('The following classes are available to use: ')
             for key, value in MichoteCommand.__classes:
                 print(f'\t{MichoteCommand.__classes[key]}')
-
 
     def __usage(self, command):
         """Prints the correct usage for each command to the user"""
@@ -115,6 +143,8 @@ class MichoteCommand(cmd.Cmd):
             print('usages:\n\t1. update <class_name> <object_id> <att_name>' +
                   '<att_value>.\n2. update <class_name> <object_id>' +
                   '{"<att_name>": "<att_value>", ...}')
+        elif command == 'all':
+            print('usage:\n\tall [<class_name>]\n\tClass name is optional')
 
     # ------------- Core Functions ---------------------------------- #
 
