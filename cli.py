@@ -36,8 +36,14 @@ class MichoteCommand(cmd.Cmd):
         'Price': Price, 'Destination': Destination
     }
 
+    __types = {
+        'age': int, 'no_of_seats': int,
+        'price_per_ticket': int, 'total_amount': int,
+        'latitude': float, 'longitude': float
+    }
 
-    # --------------- Elementary Functions -------------------------- #
+
+    # --------------- Utility Functions -------------------------- #
 
     def emptyline(self):
         """Method called when an emptyline is entered.
@@ -105,6 +111,10 @@ class MichoteCommand(cmd.Cmd):
             print('usage:\n\tshow <class_name> <object_id>')
         elif command == 'destroy':
             print('usage:\n\tdestroy <class_name> <object_id>')
+        elif command == 'update':
+            print('usages:\n\t1. update <class_name> <object_id> <att_name>' +
+                  '<att_value>.\n2. update <class_name> <object_id>' +
+                  '{"<att_name>": "<att_value>", ...}')
 
     # ------------- Core Functions ---------------------------------- #
 
@@ -214,6 +224,102 @@ class MichoteCommand(cmd.Cmd):
                 objs_as_string.append(str(v))
 
         print(objs_as_string)
+
+    def do_update(self, args):
+        """Method used to update an object."""
+        class_name = object_id = att_name = att_value = kwargs = ''
+
+        # First, extract the class name and check if its valid
+        args = args.partition(' ')
+        if args[0]:
+            class_name = args[0]
+        else:
+            print('** class name missing **')
+            self.__usage('update')
+            return
+        if class_name not in MichoteCommand.__classes:
+            print('** That class name doesn\'t exist **')
+            self.__avail_classes()
+            return
+
+        # Next extract object id and check if valid
+        args = args[2].partition(' ')
+        if args[0]:
+            object_id = args[0]
+        else:
+            print('** instance id missing **')
+            self.__usage('update')
+            return
+
+        # class name and object id extracted. Check if object exists
+        if f'{class_name}.{object_id}' not in storage.all():
+            print(f'** Object of class {class_name} and id {object_id}' +
+                  'doesn\'t exist **')
+            return
+
+        # Now, check if attributes to be added have been passed as *args or
+        # **kwargs
+        if '{' in args[2] and '}' in args[2] and type(eval(args[2])) is dict:
+            # if this line is reached, it is **kwargs.
+            # Store all the key/values in a list
+            kwargs = eval(args[2])
+            args = []
+            for key, value in kwargs.items():
+                args.append(k)
+                args.append(v)
+        else:
+            # if this line is reached, it is *args
+            args = args[2]
+
+            # First, obtain attribute name.
+            # If it is quoted, slice string to get name
+            if args and args[2] == '\"':
+                end_quote = args.find('\"', 1)
+                att_name = args[1:end_quote]
+                args = args[end_quote + 1:]
+
+            args = args.partition(' ')
+
+            # if attribute name is not set by now, it wasn't quoted. It should
+            # be in the 0th index of args
+            if not att_name and args[0] != ' ':
+                att_name = args[0]
+
+            # By this point, we have attribute name. Let's extract attribute
+            # value. Again, it may be quoted or not
+            if args[2] and args[2][0] == '\"':
+                att_value = args[2][1:args[2].find('\"', 1)]
+
+            if not att_value and args[2]:
+                att_value = args[2].partition(' ')[0]
+
+            # Attribute name and value extracted by this point. Store in a list
+            # just like in **kwargs case
+            args = [att_name, att_value]
+
+        # We have all attribute name(s) and value(s) in a list. Next step is to
+        # load the object, update it then save it
+        obj_to_update = storage.all()[f'{class_name}.{object_id}']
+
+        for i, att_name in enumerate(args):
+            if i % 2 == 0:
+                att_value = args[i + 1]
+                if not att_name:
+                    print('** attribute name missing **')
+                    self.__usage('update')
+                    return
+                if not att_value:
+                    print('** attribute value missing **')
+                    self.__usage('update')
+                    return
+                if att_name in MichoteCommand.__types:
+                    att_value = MichoteCommand.__types[att_name](att_value)
+
+                # update the object
+                obj_to_update.__dict__.update({att_name: att_value})
+
+        # save changes to file
+        obj_to_update.save()
 
 
 
