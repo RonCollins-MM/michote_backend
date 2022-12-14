@@ -8,6 +8,13 @@ This module handles file storage for all the modules.
 import os
 import json
 from models.base_model import BaseModel
+from models.admin import Admin
+from models.booked_trips import BookedTrips
+from models.company import Company
+from models.customer import Customer
+from models.destination import Destination
+from models.prices import Prices
+from models.vehicle import Vehicle
 
 class FileStorage():
     """FileStorage implementation class."""
@@ -32,8 +39,9 @@ class FileStorage():
     def save(self):
         """Serializes __objects to the JSON file in __file_path"""
 
-        objects_as_dict = {key: self.__objects[key].to_dict() for key in
-                           self.__objects.keys()}
+        lcl_copy = self.__objects
+        objects_as_dict = {key: lcl_copy[key].to_dict() for key in
+                           lcl_copy.keys()}
 
         with open(self.__file_path, 'w', encoding='utf-8') as json_file:
             json_file.write(json.dumps(objects_as_dict))
@@ -49,5 +57,3 @@ class FileStorage():
         for obj in dict_of_objects.values():
             obj_to_add = eval(obj['__class__'])(**obj)
             self.new(obj_to_add)
-
-

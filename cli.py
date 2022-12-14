@@ -8,15 +8,16 @@ object manipulation useful for development and debugging.
 """
 
 import cmd
+import json
 
 from models import storage
 from models.base_model import BaseModel
 from models.customer import Customer
-from models.booked_trip import BookedTrip
+from models.booked_trips import BookedTrips
 from models.company import Company
 from models.vehicle import Vehicle
 from models.admin import Admin
-from models.price import Price
+from models.prices import Prices
 from models.destination import Destination
 
 class MichoteCommand(cmd.Cmd):
@@ -27,13 +28,13 @@ class MichoteCommand(cmd.Cmd):
     line-oriented command intepreter.
     """
 
-    prompt = '(michote) '
+    prompt = '\n(michote) => '
 
     __classes = {
         'BaseModel': BaseModel, 'Customer': Customer,
-        'BookedTrip': BookedTrip, 'Company': Company,
+        'BookedTrips': BookedTrips, 'Company': Company,
         'Vehicle': Vehicle, 'Admin': Admin,
-        'Price': Price, 'Destination': Destination
+        'Prices': Prices, 'Destination': Destination
     }
 
     __types = {
@@ -58,7 +59,7 @@ class MichoteCommand(cmd.Cmd):
         Prints the useage of the help command.
         """
         print('Use this command to find out more information about other' +
-              'commands.')
+              ' commands.')
         self.__usage('help')
 
     def do_quit(self, arg):
@@ -121,18 +122,18 @@ class MichoteCommand(cmd.Cmd):
     def __avail_classes(self):
         """Prints the valid classes that can be used with commands"""
         print('The following classes are available to use: ')
-            for key, value in MichoteCommand.__classes:
-                print(f'\t{MichoteCommand.__classes[key]}')
+        for key in MichoteCommand.__classes.keys():
+            print(f'\t{MichoteCommand.__classes[key].__name__}')
 
     def __usage(self, command):
         """Prints the correct usage for each command to the user"""
+        print('')
         if command == 'help':
             print('usage:\n\thelp <command>')
         elif command == 'quit':
             print('usage:\n\tquit\n(command takes no arguments)')
         elif command == 'EOF':
-            print('usage:\n\t<EOF character>\nRefer to your operating' +
-                  'system specifications for how to enter EOF character')
+            print('usage:\n\t<EOF character>\n\t(Ctrl+D for linux os)')
         elif command == 'create':
             print('usage:\n\tcreate <class_name>')
         elif command == 'show':
@@ -141,8 +142,8 @@ class MichoteCommand(cmd.Cmd):
             print('usage:\n\tdestroy <class_name> <object_id>')
         elif command == 'update':
             print('usages:\n\t1. update <class_name> <object_id> <att_name>' +
-                  '<att_value>.\n2. update <class_name> <object_id>' +
-                  '{"<att_name>": "<att_value>", ...}')
+                  ' <att_value>.\n\t2. update <class_name> <object_id>' +
+                  ' {"<att_name>": "<att_value>", ...}')
         elif command == 'all':
             print('usage:\n\tall [<class_name>]\n\tClass name is optional')
 
@@ -201,7 +202,8 @@ class MichoteCommand(cmd.Cmd):
 
         # print the object
         try:
-            print(storage._FileStorage__objects[f'{class_name}.{object_id}'])
+            print(json.dumps(storage._FileStorage__objects[f'{class_name}.{object_id}'].to_dict(),
+                            indent = 1))
         except KeyError:
             print('** Object with that ID does not exists **')
 
@@ -233,6 +235,8 @@ class MichoteCommand(cmd.Cmd):
         try:
             del (storage.all()[f'{class_name}.{object_id}'])
             storage.save()
+            print(f'Object of ID {object_id} belonging to' +
+                  f' {class_name} class deleted.')
         except KeyError:
             print('** Object with that ID does not exist **')
 
@@ -246,14 +250,14 @@ class MichoteCommand(cmd.Cmd):
                 print('** class doesn\'t exist **')
                 self.__avail_classes()
                 return
-            for k, v in _FileStorage__objects.items():
+            for k, v in storage._FileStorage__objects.items():
                 if k.split('.')[0] == args:
                     objs_as_string.append(str(v))
         else:
-            for k, v in _FileStorage__objects.items():
+            for k, v in storage._FileStorage__objects.items():
                 objs_as_string.append(str(v))
 
-        print(objs_as_string)
+        print(json.dumps(objs_as_string, indent = 1))
 
     def do_update(self, args):
         """Method used to update an object."""
@@ -295,8 +299,8 @@ class MichoteCommand(cmd.Cmd):
             kwargs = eval(args[2])
             args = []
             for key, value in kwargs.items():
-                args.append(k)
-                args.append(v)
+                args.append(key)
+                args.append(value)
         else:
             # if this line is reached, it is *args
             args = args[2]
@@ -350,6 +354,8 @@ class MichoteCommand(cmd.Cmd):
 
         # save changes to file
         obj_to_update.save()
+        print('Object Updated !')
+        print(json.dumps(obj_to_update.to_dict(), indent = 1))
 
 
 

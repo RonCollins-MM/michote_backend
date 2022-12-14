@@ -4,7 +4,7 @@
 
 from models.base_model import BaseModel
 
-class Prices(BaseModel):
+class Destination(BaseModel):
     """Implementation of destination class"""
 
     latitude = 0.0
