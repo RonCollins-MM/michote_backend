@@ -198,6 +198,7 @@ class MichoteCommand(cmd.Cmd):
             return
         if not object_id:
             print('** object id missing **')
+            self.__usage('show')
             return
 
         # print the object
@@ -229,14 +230,14 @@ class MichoteCommand(cmd.Cmd):
             return
         if not object_id:
             print('** object id missing **')
+            self.__usage('destroy')
             return
 
         # Delete the object
         try:
             del (storage.all()[f'{class_name}.{object_id}'])
             storage.save()
-            print(f'Object of ID {object_id} belonging to' +
-                  f' {class_name} class deleted.')
+            print(f'!! Object DELETED !!')
         except KeyError:
             print('** Object with that ID does not exist **')
 
@@ -257,7 +258,7 @@ class MichoteCommand(cmd.Cmd):
             for k, v in storage._FileStorage__objects.items():
                 objs_as_string.append(str(v))
 
-        print(json.dumps(objs_as_string, indent = 1))
+        print(json.dumps(objs_as_string, indent = 2))
 
     def do_update(self, args):
         """Method used to update an object."""
@@ -354,7 +355,7 @@ class MichoteCommand(cmd.Cmd):
 
         # save changes to file
         obj_to_update.save()
-        print('Object Updated !')
+        print('** Object UPDATED **')
         print(json.dumps(obj_to_update.to_dict(), indent = 1))
 
 
