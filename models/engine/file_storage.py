@@ -9,12 +9,10 @@ import os
 import json
 from models.base_model import BaseModel
 from models.admin import Admin
-from models.booked_trips import BookedTrips
-from models.company import Company
+from models.booked_trip import BookedTrip
+from models.partner import Partner
 from models.customer import Customer
-from models.destination import Destination
-from models.prices import Prices
-from models.vehicle import Vehicle
+from models.route import Route
 
 class FileStorage():
     """FileStorage implementation class."""

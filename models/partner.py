@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
-"""Contains Company class"""
+"""Contains Partner class"""
 
 from models.base_model import BaseModel
 
-class Company(BaseModel):
+class Partner(BaseModel):
     """Implementation of booked trips class"""
-    company_name = ''
+    partner_name = ''
 
     phone_number = ''
 

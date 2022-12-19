@@ -4,18 +4,18 @@
 
 from models.base_model import BaseModel
 
-class BookedTrips(BaseModel):
+class BookedTrip(BaseModel):
     """Implementation of booked trips class"""
 
     date_booked = ''
 
-    company_id = ''
+    partner_id = ''
 
     customer_id = ''
 
-    depature_location = ''
+    start_destination = ''
 
-    destination = ''
+    end_destination = ''
 
     depature_time = ''
 
@@ -24,5 +24,7 @@ class BookedTrips(BaseModel):
     no_of_seats_booked = 0
 
     price_per_ticket = 0
+
+    currency = ''
 
     total_amount = 0

@@ -13,12 +13,10 @@ import json
 from models import storage
 from models.base_model import BaseModel
 from models.customer import Customer
-from models.booked_trips import BookedTrips
-from models.company import Company
-from models.vehicle import Vehicle
+from models.booked_trip import BookedTrip
+from models.partner import Partner
 from models.admin import Admin
-from models.prices import Prices
-from models.destination import Destination
+from models.route import Route
 
 class MichoteCommand(cmd.Cmd):
     """Class definition for the command intepreter.
@@ -32,14 +30,12 @@ class MichoteCommand(cmd.Cmd):
 
     __classes = {
         'BaseModel': BaseModel, 'Customer': Customer,
-        'BookedTrips': BookedTrips, 'Company': Company,
-        'Vehicle': Vehicle, 'Admin': Admin,
-        'Prices': Prices, 'Destination': Destination
+        'BookedTrip': BookedTrip, 'Partner': Partner,
+        'Admin': Admin, 'Route': Route
     }
 
     __types = {
-        'age': int, 'no_of_seats': int,
-        'price_per_ticket': int, 'total_amount': int,
+        'age': int, 'price_per_ticket': int, 'total_amount': int,
         'latitude': float, 'longitude': float
     }
 
@@ -206,7 +202,7 @@ class MichoteCommand(cmd.Cmd):
             print(json.dumps(storage._FileStorage__objects[f'{class_name}.{object_id}'].to_dict(),
                             indent = 1))
         except KeyError:
-            print('** Object with that ID does not exists **')
+            print('** Object with that ID does not exist **')
 
     def do_destroy(self, args):
         """Deletes an object based on its class name and ID."""
