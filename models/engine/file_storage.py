@@ -24,9 +24,15 @@ class FileStorage():
         """Constructor"""
         pass
 
-    def all(self):
+    def all(self, cls=None):
         """Returns the dictionary __objects"""
-        return self.__objects
+        if cls == None:
+            return self.__objects
+        filtered_dict = {}
+        for key, value in self.__objects.items():
+            if cls == value.__class__ or cls == value.__class__.__name__:
+                filtered_dict[key] = value
+        return filtered_dict
 
     def new(self, obj):
         """Adds a new object to __objects with the key <class_name>.<id>"""
@@ -58,7 +64,7 @@ class FileStorage():
 
     def delete(self, obj=None):
         """Delete object from __objects if it exists"""
-        if obj = None:
+        if obj == None:
             return
         key = f'{obj.__class__.__name__}.{obj.id}'
         if key in self.__objects:
