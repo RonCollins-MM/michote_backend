@@ -9,6 +9,7 @@ object manipulation useful for development and debugging.
 
 import cmd
 import json
+import shlex
 
 from models import storage
 from models.base_model import BaseModel
@@ -143,6 +144,38 @@ class MichoteCommand(cmd.Cmd):
         elif command == 'all':
             print('usage:\n\tall [<class_name>]\n\tClass name is optional')
 
+    def _key_value_parser(self, args):
+        """Creates a dictionary or attributes from a list of key/value pairs.
+
+        The list of key/value pairs is passed as a list of strings with the
+        format:
+            `["<key name>=<value>", ...]`
+        """
+        attributes_dict = {}
+        for key_val_pair in args:
+            if '=' not in key_val_pair:
+                continue
+            key_val_list = key_val_pair.split("=", 1)
+            key = key_val_list[0]
+            value = key_val_list[1]
+            if value[0] == '"' and value[-1] == '"':
+                value = shlex.split(value)[0].replace('_',' ')
+                attributes_dict[key] = value
+                continue
+            if '.' in value:
+                try:
+                    value = float(value)
+                    attributes_dict[key] = value
+                    continue
+                except:
+                    continue
+            try:
+                value = int(value)
+                attributes_dict[key] = value
+            except:
+                continue
+        return attributes_dict
+
     # ------------- Core Functions ---------------------------------- #
 
     def do_create(self, args):
@@ -158,13 +191,17 @@ class MichoteCommand(cmd.Cmd):
             print('** class name missing **\n')
             self.__usage('create')
             return
-        if args not in MichoteCommand.__classes:
+        args = args.split()
+        if args[0] not in MichoteCommand.__classes:
             print('** Class doesn\'t exist **\n')
-            print('The following classes are available to use: ')
             self.__avail_classes()
             return
-        new_instance = MichoteCommand.__classes[args]()
-        storage.save()
+        attributes_dict = self._key_value_parser(args[1:])
+        if not attributes_dict:
+            print("No parameters passed. Aborting ...")
+            return
+        new_instance = MichoteCommand.__classes[args[0]](**attributes_dict)
+        new_instance.save()
         print(new_instance.id)
 
     def do_show(self, args):
