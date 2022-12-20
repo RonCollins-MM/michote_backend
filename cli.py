@@ -132,7 +132,11 @@ class MichoteCommand(cmd.Cmd):
         elif command == 'EOF':
             print('usage:\n\t<EOF character>\n\t(Ctrl+D for linux os)')
         elif command == 'create':
-            print('usage:\n\tcreate <class_name>')
+            print('usage:\n\tcreate <class_name> <param1> <param2> ...' +
+                  '\n\nSyntax for params: <key name>=<value>\nFor values,' +
+                  ' strings must be surrounded with quotes and multiple' +
+                  ' words separated with underscores.\nExample:\n\t create' +
+                  ' Admin name="firstname" email="mail@mail.com"')
         elif command == 'show':
             print('usage:\n\tshow <class_name> <object_id>')
         elif command == 'destroy':
@@ -199,6 +203,7 @@ class MichoteCommand(cmd.Cmd):
         attributes_dict = self._key_value_parser(args[1:])
         if not attributes_dict:
             print("No parameters passed. Aborting ...")
+            self.__usage('create')
             return
         new_instance = MichoteCommand.__classes[args[0]](**attributes_dict)
         new_instance.save()
