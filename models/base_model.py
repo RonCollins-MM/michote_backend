@@ -14,6 +14,8 @@ class BaseModel():
     Defines all the attributes and methods common to all child classes.
     """
 
+    DATETIME_ISO = '%Y-%m-%dT%H:%M:%S.%f'
+
     def __init__(self, *args, **kwargs):
         """BaseModel constructor."""
 
@@ -21,12 +23,19 @@ class BaseModel():
             for key, value in kwargs.items():
                 if key == '__class__':
                     continue
-                if key.lower() == 'id':
-                    continue
                 setattr(self, key, value)
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.datetime.now()
-            self.last_updated = self.created_at
+            if not hasattr(self, 'id'):
+                self.id = str(uuid.uuid4())
+            if not hasattr(self, 'created_at'):
+                self.created_at = datetime.datetime.now()
+                self.last_updated = self.created_at
+            if type(self.created_at) is str:
+                self.created_at = \
+                datetime.datetime.strptime(kwargs['created_at'],
+                                           BaseModel.DATETIME_ISO)
+                self.last_updated = \
+                datetime.datetime.strptime(kwargs['last_updated'],
+                                           BaseModel.DATETIME_ISO)
             models.storage.new(self)
         else:
             self.id = str(uuid.uuid4())

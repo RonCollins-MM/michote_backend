@@ -2,5 +2,5 @@
 
 from models.engine.file_storage import FileStorage
 
-storage = engine.file_storage.FileStorage()
+storage = FileStorage()
 storage.reload()
