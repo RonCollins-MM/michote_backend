@@ -55,3 +55,12 @@ class FileStorage():
         for obj in dict_of_objects.values():
             obj_to_add = eval(obj['__class__'])(**obj)
             self.new(obj_to_add)
+
+    def delete(self, obj=None):
+        """Delete object from __objects if it exists"""
+        if obj = None:
+            return
+        key = f'{obj.__class__.__name__}.{obj.id}'
+        if key in self.__objects:
+            del self.__objects[key]
+            print("!! Object DELETED !!")
