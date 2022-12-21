@@ -9,16 +9,15 @@ object manipulation useful for development and debugging.
 
 import cmd
 import json
+import shlex
 
 from models import storage
 from models.base_model import BaseModel
 from models.customer import Customer
-from models.booked_trips import BookedTrips
-from models.company import Company
-from models.vehicle import Vehicle
+from models.booked_trip import BookedTrip
+from models.partner import Partner
 from models.admin import Admin
-from models.prices import Prices
-from models.destination import Destination
+from models.route import Route
 
 class MichoteCommand(cmd.Cmd):
     """Class definition for the command intepreter.
@@ -32,14 +31,12 @@ class MichoteCommand(cmd.Cmd):
 
     __classes = {
         'BaseModel': BaseModel, 'Customer': Customer,
-        'BookedTrips': BookedTrips, 'Company': Company,
-        'Vehicle': Vehicle, 'Admin': Admin,
-        'Prices': Prices, 'Destination': Destination
+        'BookedTrip': BookedTrip, 'Partner': Partner,
+        'Admin': Admin, 'Route': Route
     }
 
     __types = {
-        'age': int, 'no_of_seats': int,
-        'price_per_ticket': int, 'total_amount': int,
+        'age': int, 'price_per_ticket': int, 'total_amount': int,
         'latitude': float, 'longitude': float
     }
 
@@ -135,7 +132,11 @@ class MichoteCommand(cmd.Cmd):
         elif command == 'EOF':
             print('usage:\n\t<EOF character>\n\t(Ctrl+D for linux os)')
         elif command == 'create':
-            print('usage:\n\tcreate <class_name>')
+            print('usage:\n\tcreate <class_name> <param1> <param2> ...' +
+                  '\n\nSyntax for params: <key name>=<value>\nFor values,' +
+                  ' strings must be surrounded with quotes and multiple' +
+                  ' words separated with underscores.\nExample:\n\t create' +
+                  ' Admin name="firstname" email="mail@mail.com"')
         elif command == 'show':
             print('usage:\n\tshow <class_name> <object_id>')
         elif command == 'destroy':
@@ -146,6 +147,38 @@ class MichoteCommand(cmd.Cmd):
                   ' {"<att_name>": "<att_value>", ...}')
         elif command == 'all':
             print('usage:\n\tall [<class_name>]\n\tClass name is optional')
+
+    def _key_value_parser(self, args):
+        """Creates a dictionary or attributes from a list of key/value pairs.
+
+        The list of key/value pairs is passed as a list of strings with the
+        format:
+            `["<key name>=<value>", ...]`
+        """
+        attributes_dict = {}
+        for key_val_pair in args:
+            if '=' not in key_val_pair:
+                continue
+            key_val_list = key_val_pair.split("=", 1)
+            key = key_val_list[0]
+            value = key_val_list[1]
+            if value[0] == '"' and value[-1] == '"':
+                value = shlex.split(value)[0].replace('_',' ')
+                attributes_dict[key] = value
+                continue
+            if '.' in value:
+                try:
+                    value = float(value)
+                    attributes_dict[key] = value
+                    continue
+                except:
+                    continue
+            try:
+                value = int(value)
+                attributes_dict[key] = value
+            except:
+                continue
+        return attributes_dict
 
     # ------------- Core Functions ---------------------------------- #
 
@@ -162,13 +195,18 @@ class MichoteCommand(cmd.Cmd):
             print('** class name missing **\n')
             self.__usage('create')
             return
-        if args not in MichoteCommand.__classes:
+        args = args.split()
+        if args[0] not in MichoteCommand.__classes:
             print('** Class doesn\'t exist **\n')
-            print('The following classes are available to use: ')
             self.__avail_classes()
             return
-        new_instance = MichoteCommand.__classes[args]()
-        storage.save()
+        attributes_dict = self._key_value_parser(args[1:])
+        if not attributes_dict:
+            print("No parameters passed. Aborting ...")
+            self.__usage('create')
+            return
+        new_instance = MichoteCommand.__classes[args[0]](**attributes_dict)
+        new_instance.save()
         print(new_instance.id)
 
     def do_show(self, args):
@@ -203,10 +241,10 @@ class MichoteCommand(cmd.Cmd):
 
         # print the object
         try:
-            print(json.dumps(storage._FileStorage__objects[f'{class_name}.{object_id}'].to_dict(),
+            print(json.dumps(storage.all(class_name)[f'{class_name}.{object_id}'].to_dict(),
                             indent = 1))
         except KeyError:
-            print('** Object with that ID does not exists **')
+            print('** Object with that ID does not exist **')
 
     def do_destroy(self, args):
         """Deletes an object based on its class name and ID."""
@@ -235,7 +273,8 @@ class MichoteCommand(cmd.Cmd):
 
         # Delete the object
         try:
-            del (storage.all()[f'{class_name}.{object_id}'])
+            storage.delete(storage.
+                           all(class_name)[f'{class_name}.{object_id}'])
             storage.save()
             print(f'!! Object DELETED !!')
         except KeyError:
@@ -251,11 +290,10 @@ class MichoteCommand(cmd.Cmd):
                 print('** class doesn\'t exist **')
                 self.__avail_classes()
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
+            for k, v in storage.all(args).items():
                     objs_as_string.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 objs_as_string.append(str(v))
 
         print(json.dumps(objs_as_string, indent = 2))
@@ -287,7 +325,7 @@ class MichoteCommand(cmd.Cmd):
             return
 
         # class name and object id extracted. Check if object exists
-        if f'{class_name}.{object_id}' not in storage.all():
+        if f'{class_name}.{object_id}' not in storage.all(class_name):
             print(f'** Object of class {class_name} and id {object_id}' +
                   'doesn\'t exist **')
             return
@@ -334,7 +372,7 @@ class MichoteCommand(cmd.Cmd):
 
         # We have all attribute name(s) and value(s) in a list. Next step is to
         # load the object, update it then save it
-        obj_to_update = storage.all()[f'{class_name}.{object_id}']
+        obj_to_update = storage.all(class_name)[f'{class_name}.{object_id}']
 
         for i, att_name in enumerate(args):
             if i % 2 == 0:
@@ -351,10 +389,11 @@ class MichoteCommand(cmd.Cmd):
                     att_value = MichoteCommand.__types[att_name](att_value)
 
                 # update the object
-                obj_to_update.__dict__.update({att_name: att_value})
+                setattr(storage.all(class_name)[f'{class_name}.{object_id}'],
+                        att_name, att_value)
 
-        # save changes to file
-        obj_to_update.save()
+        # save changes to storage
+        storage.all(class_name)[f'{class_name}.{object_id}'].save()
         print('** Object UPDATED **')
         print(json.dumps(obj_to_update.to_dict(), indent = 1))
 
