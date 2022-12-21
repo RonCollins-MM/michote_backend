@@ -35,7 +35,7 @@ class Partner(BaseModel, Base):
         """Constructor for Partner class"""
         super().__init__(*args, **kwargs)
 
-    if models.storage_type == 'file':
+    if models.storage_type != 'db':
         @property
         def routes(self):
             """Getter for all the routes under the current partner"""
