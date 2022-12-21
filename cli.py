@@ -241,7 +241,7 @@ class MichoteCommand(cmd.Cmd):
 
         # print the object
         try:
-            print(json.dumps(storage._FileStorage__objects[f'{class_name}.{object_id}'].to_dict(),
+            print(json.dumps(storage.all(class_name)[f'{class_name}.{object_id}'].to_dict(),
                             indent = 1))
         except KeyError:
             print('** Object with that ID does not exist **')
@@ -273,7 +273,8 @@ class MichoteCommand(cmd.Cmd):
 
         # Delete the object
         try:
-            del (storage.all()[f'{class_name}.{object_id}'])
+            storage.delete(storage.
+                           all(class_name)[f'{class_name}.{object_id}'])
             storage.save()
             print(f'!! Object DELETED !!')
         except KeyError:
@@ -289,11 +290,10 @@ class MichoteCommand(cmd.Cmd):
                 print('** class doesn\'t exist **')
                 self.__avail_classes()
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
+            for k, v in storage.all(args).items():
                     objs_as_string.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 objs_as_string.append(str(v))
 
         print(json.dumps(objs_as_string, indent = 2))
@@ -325,7 +325,7 @@ class MichoteCommand(cmd.Cmd):
             return
 
         # class name and object id extracted. Check if object exists
-        if f'{class_name}.{object_id}' not in storage.all():
+        if f'{class_name}.{object_id}' not in storage.all(class_name):
             print(f'** Object of class {class_name} and id {object_id}' +
                   'doesn\'t exist **')
             return
@@ -372,7 +372,7 @@ class MichoteCommand(cmd.Cmd):
 
         # We have all attribute name(s) and value(s) in a list. Next step is to
         # load the object, update it then save it
-        obj_to_update = storage.all()[f'{class_name}.{object_id}']
+        obj_to_update = storage.all(class_name)[f'{class_name}.{object_id}']
 
         for i, att_name in enumerate(args):
             if i % 2 == 0:
@@ -389,10 +389,11 @@ class MichoteCommand(cmd.Cmd):
                     att_value = MichoteCommand.__types[att_name](att_value)
 
                 # update the object
-                obj_to_update.__dict__.update({att_name: att_value})
+                setattr(storage.all(class_name)[f'{class_name}.{object_id}'],
+                        att_name, att_value)
 
-        # save changes to file
-        obj_to_update.save()
+        # save changes to storage
+        storage.all(class_name)[f'{class_name}.{object_id}'].save()
         print('** Object UPDATED **')
         print(json.dumps(obj_to_update.to_dict(), indent = 1))
 

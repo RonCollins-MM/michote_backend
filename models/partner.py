@@ -2,18 +2,46 @@
 
 """Contains Partner class"""
 
-from models.base_model import BaseModel
+import models
 
-class Partner(BaseModel):
+from models.base_model import BaseModel, Base
+from os import getenv
+from models.route import Route
+from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship
+
+
+class Partner(BaseModel, Base):
     """Implementation of booked trips class"""
-    partner_name = ''
 
-    phone_number = ''
+    if models.storage_type == 'db':
+        __tablename__ = 'partners'
+        partner_name = Column(String(128), nullable=False)
+        phone_number = Column(String(128), nullable=False)
+        email = Column(String(128), nullable=False)
+        password = Column(String(128), nullable=False)
+        postal_address = Column(String(128), nullable=True)
+        country = Column(String(128), nullable=False)
+        routes = relationship('Route', backref='partner')
+    else:
+        partner_name = ''
+        phone_number = ''
+        email = ''
+        password = ''
+        postal_address = ''
+        country = ''
 
-    email = ''
+    def __init__(self, *args, **kwargs):
+        """Constructor for Partner class"""
+        super().__init__(*args, **kwargs)
 
-    password = ''
-
-    postal_address = ''
-
-    country = ''
+    if models.storage_type == 'file':
+        @property
+        def routes(self):
+            """Getter for all the routes under the current partner"""
+            routes_list = []
+            all_routes = models.storage.all(Route)
+            for route in all_routes.values():
+                if route.partner_id == self.id:
+                    routes_list.append(route)
+            return routes_list
