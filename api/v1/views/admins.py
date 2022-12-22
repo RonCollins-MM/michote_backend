@@ -9,6 +9,13 @@ from models.admin import Admin
 
 admin_attributes = ['username', 'password', 'email', 'phone_number']
 
+def desc_gen(missing_att_list):
+    """Generates a description message with all attributes missing"""
+    desc = 'Missing the following attributes: '
+    for attr in missing_att_list:
+        desc = desc + attr + ', '
+    return desc[:-2]
+
 @app_views.route('/admins', methods=['GET'], strict_slashes=False)
 def get_all_admins():
     """Method called to get all Admin objects from storage"""
@@ -48,13 +55,16 @@ def create_admin():
     """Creates a new admin object"""
     if not request.get_json():
         abort(400, description='Not a JSON')
+    missing_atts = []
     for attribute in admin_attributes:
         if attribute not in request.get_json():
-            abort(400, description=f'Missing {attribute}')
+            missing_atts.append(attribute)
+    if missing_atts:
+        desc = desc_gen(missing_atts)
+        abort(400, description=desc)
 
     info = request.get_json()
     admin_obj = Admin(**info)
     admin_obj.save()
 
     return make_response(jsonify(admin_obj.to_dict()), 201)
-
