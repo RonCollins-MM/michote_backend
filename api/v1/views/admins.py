@@ -93,3 +93,23 @@ def auth_admin():
            admin_obj.password == request.get_json()['password']:
             return make_response(jsonify({'auth_status':'SUCCESS'}), 200)
     return make_response(jsonify({'auth_status':'FAIL'}), 404)
+
+@app_views.route('admins/<admin_id>', methods=['PUT'], strict_slashes=False)
+def update_admin(admin_id):
+    """Updates admin information"""
+    admin_obj = storage.get(Admin, admin_id)
+
+    if not admin_obj:
+        abort(404)
+
+    info = request.get_json()
+    if not info:
+        abort(400, description='Not a JSON')
+
+    ignore_atts = ['id', 'created_at', 'last_updated']
+
+    for key, value in info.items():
+        if key not in ignore_atts:
+            setattr(admin_obj, key, value)
+    storage.save()
+    return make_response(jsonify(admin_obj.to_dict()), 200)
