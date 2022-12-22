@@ -63,6 +63,11 @@ def create_admin():
         desc = desc_gen(missing_atts)
         abort(400, description=desc)
 
+    admin_dict = storage.all(Admin)
+    for admin_obj in admin_dict.values():
+        if admin_obj.email == request.get_json()['email']:
+            abort(409, description='User with that email already exists')
+
     info = request.get_json()
     admin_obj = Admin(**info)
     admin_obj.save()
