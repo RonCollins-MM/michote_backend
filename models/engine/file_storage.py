@@ -7,6 +7,7 @@ This module handles file storage for all the modules.
 
 import os
 import json
+import models
 from models.base_model import BaseModel
 from models.admin import Admin
 from models.booked_trip import BookedTrip
@@ -19,6 +20,11 @@ class FileStorage():
 
     __file_path = 'models.json'
     __objects = {}
+
+    __classes = {'Customer': Customer, 'Partner': Partner,
+                 'BookedTrip': BookedTrip, 'Admin': Admin,
+                 'Route': Route
+    }
 
     def __init__(self):
         """Constructor"""
@@ -70,3 +76,19 @@ class FileStorage():
         if key in self.__objects:
             del self.__objects[key]
             print("!! Object DELETED !!")
+
+    def get(self, cls, id):
+        """Retrieves an object from storage"""
+        if cls not in FileStorage.__classes.values():
+            return None
+
+        objs_dict = models.storage.all(cls)
+        for obj in objs_dict.values():
+            if (obj.id == id):
+                return obj
+
+        return None
+
+    def count(self, cls=None):
+        """Counts the number of objects of a given class in storage"""
+        return len(self.all(cls))

@@ -9,9 +9,9 @@ from os import getenv
 from sqlalchemy import Column, String, Integer
 
 class Customer(BaseModel, Base):
-    """Use object definition"""
+    """Implementation of customer class"""
     if models.storage_type == 'db':
-        __tablename__='customers'
+        __tablename__ = 'customers'
         first_name = Column(String(128), nullable=False)
         last_name = Column(String(128), nullable=False)
         age = Column(Integer, nullable=False)
