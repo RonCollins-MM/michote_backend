@@ -44,21 +44,14 @@ class DB_Storage:
 
         If class name is specified, only objects from that class are returned.
         Otherwise, all objects in the database are returned"""
-        objects_dict = {}
-        if cls is None:
-            for clss in DB_Storage.__classes:
-                objects_in_db = self.__session.query(DB_Storage.
-                                                     __classes[clss]).all()
-                for obj in objects_in_db:
+        objs_dict = {}
+        for clss in DB_Storage.__classes:
+            if cls is None or cls is DB_Storage.__classes[clss] or cls is clss:
+                objs = self.__session.query(DB_Storage.__classes[clss]).all()
+                for obj in objs:
                     key = f'{obj.__class__.__name__}.{obj.id}'
-                    objects_dict[key] = obj
-            return objects_dict
-        objects_in_db = self.__session.query(DB_Storage.
-                                             __classes[cls.__name__]).all()
-        for obj in objects_in_db:
-            key = f'{obj.__class__.__name__}.{obj.id}'
-            objects_dict[key] = obj
-        return objects_dict
+                    objs_dict[key] = obj
+        return objs_dict
 
     def new(self, obj):
         """Adds a new object to the current database session"""
