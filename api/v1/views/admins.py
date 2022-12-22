@@ -68,3 +68,23 @@ def create_admin():
     admin_obj.save()
 
     return make_response(jsonify(admin_obj.to_dict()), 201)
+
+@app_views.route('admins/login', methods=['POST'], strict_slashes=False)
+def auth_admin():
+    """Checks if admin with given credentials exists in storage.
+
+    If found, returns 200 OK response. Otherwise, returns 404 not found
+    """
+    if 'email' not in request.get_json():
+        desc = desc_gen(['email'])
+        abort(400, description=desc)
+    if 'password' not in request.get_json():
+        desc = desc_gen(['password'])
+        abort(400, description=desc)
+
+    admins_dict = storage.all(Admin)
+    for admin_obj in admins_dict.values():
+        if admin_obj.email == request.get_json()['email'] and \
+           admin_obj.password == request.get_json()['password']:
+            return make_response(jsonify({'auth_status':'SUCCESS'}), 200)
+    return make_response(jsonify({'auth_status':'FAIL'}), 404)
