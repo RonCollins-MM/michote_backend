@@ -10,3 +10,14 @@ from models import storage
 def status_okay():
     """Returns status OK code"""
     return jsonify({'status': 'OK'})
+
+@app_views.route('/stats', methods=['GET'], strict_slashes=False)
+def get_no_of_objects():
+    """Retrieves the number of objects of each type from storage"""
+    return jsonify({
+        'Admins': storage.count('Admin'),
+        'Customers': storage.count('Customer'),
+        'Partners': storage.count('Partner'),
+        'Routes': storage.count('Route'),
+        'BookedTrips': storage.count('BookedTrip')
+    })
