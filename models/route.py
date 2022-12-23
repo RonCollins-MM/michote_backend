@@ -16,7 +16,7 @@ class Route(BaseModel, Base):
                             nullable=False)
         start_destination = Column(String(60), nullable=False)
         end_destination = Column(String(60), nullable=False)
-        period_end = Column(DateTime, nullable=True)
+        period_begin = Column(DateTime, nullable=True)
         period_end = Column(DateTime, nullable=True)
         price_per_ticket = Column(Integer, nullable=True)
         currency = Column(String(128), nullable=True)
