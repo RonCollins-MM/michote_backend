@@ -15,10 +15,8 @@ class BookedTrip(BaseModel, Base):
         __tablename__ = 'booked_trips'
         date_booked = Column(DateTime, nullable=False,
                              default=datetime.utcnow())
-        partner_id = Column(String(60), ForeignKey('partners.id'),
-                            nullable=False)
-        customer_id = Column(String(60), ForeignKey('customers.id'),
-                             nullable=False)
+        partner_id = Column(String(60), nullable=False)
+        customer_id = Column(String(60), nullable=False)
         start_destination = Column(String(128), nullable=False)
         end_destination = Column(String(128), nullable=False)
         depature_time = Column(DateTime, nullable=False,
