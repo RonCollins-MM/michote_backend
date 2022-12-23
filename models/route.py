@@ -13,7 +13,7 @@ class Route(BaseModel, Base):
     if models.storage_type == 'db':
         __tablename__ = 'routes'
         partner_id = Column(String(60), ForeignKey('partners.id'),
-                            nullable=False)
+                            nullable=True)
         start_destination = Column(String(60), nullable=False)
         end_destination = Column(String(60), nullable=False)
         period_begin = Column(DateTime, nullable=True)
