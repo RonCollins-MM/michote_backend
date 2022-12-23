@@ -2,6 +2,8 @@
 
 """This module handles the database storage engine"""
 
+import models
+
 from os import getenv
 from sqlalchemy import create_engine
 from models.customer import Customer
@@ -15,10 +17,9 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 class DB_Storage:
     """Defines the database storage engine attributes"""
 
-    __classes = {'Customer':Customer, 'Partner': Partner,
+    __classes = {'Customer': Customer, 'Partner': Partner,
                  'BookedTrip': BookedTrip, 'Admin': Admin,
-                 'Route': Route
-    }
+                 'Route': Route}
 
     __engine = None
     __session = None
@@ -43,20 +44,14 @@ class DB_Storage:
 
         If class name is specified, only objects from that class are returned.
         Otherwise, all objects in the database are returned"""
-        objects_dict = {}
-        if cls is None:
-            for clss in DB_Storage.__classes:
-                objects_in_db = self.__session.query(DB_Storage.
-                                                     __classes[clss]).all()
-                for obj in objects_in_db:
+        objs_dict = {}
+        for clss in DB_Storage.__classes:
+            if cls is None or cls is DB_Storage.__classes[clss] or cls is clss:
+                objs = self.__session.query(DB_Storage.__classes[clss]).all()
+                for obj in objs:
                     key = f'{obj.__class__.__name__}.{obj.id}'
-                    objects_dict[key] = obj
-            return objects_dict
-        objects_in_db = self.__session.query(DB_Storage.__classes[cls]).all()
-        for obj in objects_in_db:
-            key = f'{obj.__class__.__name__}.{obj.id}'
-            objects_dict[key] = obj
-        return objects_dict
+                    objs_dict[key] = obj
+        return objs_dict
 
     def new(self, obj):
         """Adds a new object to the current database session"""
@@ -84,3 +79,19 @@ class DB_Storage:
     def close(self):
         """Closes the current database session"""
         self.__session.remove()
+
+    def get(self, cls, id):
+        """Retrieves an object from storage"""
+        if cls not in DB_Storage.__classes.values():
+            return None
+
+        objs_dict = models.storage.all(cls)
+        for obj in objs_dict.values():
+            if (obj.id == id):
+                return obj
+
+        return None
+
+    def count(self, cls=None):
+        """Counts the number of objects of a given class in storage"""
+        return len(self.all(cls))
