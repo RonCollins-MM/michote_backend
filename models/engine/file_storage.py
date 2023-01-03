@@ -77,6 +77,10 @@ class FileStorage():
             del self.__objects[key]
             print("!! Object DELETED !!")
 
+    def close(self):
+        """call reload() method for deserializing the JSON file to objects"""
+        self.reload()
+
     def get(self, cls, id):
         """Retrieves an object from storage"""
         if cls not in FileStorage.__classes.values():
