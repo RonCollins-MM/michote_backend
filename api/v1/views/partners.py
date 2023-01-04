@@ -51,7 +51,7 @@ def delete_partner(partner_id):
 
     return make_response(jsonify({}), 200)
 
-@app_views.route('partners/signup', methods=['POST'], strict_slashes=False)
+@app_views.route('partners', methods=['POST'], strict_slashes=False)
 def create_partner():
     """Creates a new Partner object"""
     if not request.get_json():
@@ -92,7 +92,7 @@ def auth_partner():
     for partner_obj in partner_dict.values():
         if partner_obj.email == request.get_json()['email'] and \
            partner_obj.password == request.get_json()['password']:
-            return make_response(jsonify({'auth_status':'SUCCESS'}), 200)
+            return make_response(jsonify({'auth_status':'SUCCESS', 'user_id': partner_obj.id}), 200)
     return make_response(jsonify({'auth_status':'FAIL'}), 404)
 
 @app_views.route('partners/<partner_id>', methods=['PUT'], strict_slashes=False)

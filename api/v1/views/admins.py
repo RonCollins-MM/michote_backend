@@ -50,7 +50,7 @@ def delete_admin(admin_id):
 
     return make_response(jsonify({}), 200)
 
-@app_views.route('admins/signup', methods=['POST'], strict_slashes=False)
+@app_views.route('admins', methods=['POST'], strict_slashes=False)
 def create_admin():
     """Creates a new admin object"""
     if not request.get_json():
@@ -91,7 +91,7 @@ def auth_admin():
     for admin_obj in admins_dict.values():
         if admin_obj.email == request.get_json()['email'] and \
            admin_obj.password == request.get_json()['password']:
-            return make_response(jsonify({'auth_status':'SUCCESS'}), 200)
+            return make_response(jsonify({'auth_status':'SUCCESS', 'user_id': admin_obj.id}), 200)
     return make_response(jsonify({'auth_status':'FAIL'}), 404)
 
 @app_views.route('admins/<admin_id>', methods=['PUT'], strict_slashes=False)

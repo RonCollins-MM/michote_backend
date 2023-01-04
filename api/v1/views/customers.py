@@ -7,7 +7,7 @@ from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request
 from models.customer import Customer
 
-customer_attributes = ['first_name', 'last_name', 'age', 'gender', 'email',
+customer_attributes = ['first_name', 'last_name', 'email',
                        'password', 'country', 'phone_number']
 
 def desc_gen(missing_att_list):
@@ -51,7 +51,7 @@ def delete_user(user_id):
 
     return make_response(jsonify({}), 200)
 
-@app_views.route('users/signup', methods=['POST'], strict_slashes=False)
+@app_views.route('users', methods=['POST'], strict_slashes=False)
 def create_user():
     """Creates a new User object"""
     if not request.get_json():
@@ -92,7 +92,7 @@ def auth_user():
     for customer_obj in customer_dict.values():
         if customer_obj.email == request.get_json()['email'] and \
            customer_obj.password == request.get_json()['password']:
-            return make_response(jsonify({'auth_status':'SUCCESS'}), 200)
+            return make_response(jsonify({'auth_status':'SUCCESS', 'user_id': customer_obj.id}), 200)
     return make_response(jsonify({'auth_status':'FAIL'}), 404)
 
 @app_views.route('users/<user_id>', methods=['PUT'], strict_slashes=False)

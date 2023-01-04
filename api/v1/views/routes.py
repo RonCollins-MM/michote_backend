@@ -74,7 +74,7 @@ def delete_route(route_id):
 
     return make_response(jsonify({}), 200)
 
-@app_views.route('routes/add_route', methods=['POST'], strict_slashes=False)
+@app_views.route('routes', methods=['POST'], strict_slashes=False)
 def create_route():
     """Creates a new route object"""
     if not request.get_json():

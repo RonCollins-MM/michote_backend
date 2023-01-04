@@ -14,8 +14,6 @@ class Customer(BaseModel, Base):
         __tablename__ = 'customers'
         first_name = Column(String(128), nullable=False)
         last_name = Column(String(128), nullable=False)
-        age = Column(Integer, nullable=False)
-        gender = Column(String(128), nullable=True, default='prefer not to say')
         email = Column(String(128), nullable=False)
         password = Column(String(128), nullable=False)
         country = Column(String(128), nullable=False)
@@ -24,8 +22,6 @@ class Customer(BaseModel, Base):
     else:
         first_name = ''
         last_name = ''
-        age = 0
-        gender = ''
         email = ''
         password = ''
         country = ''
