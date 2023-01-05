@@ -5,12 +5,9 @@
 from models import storage
 from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request
-from models.booked_trip import BookedTrip
+from models.booked_trip import BookedTrip'
 
-bkd_trip_attributes = ['date_booked', 'partner_id', 'customer_id',
-                       'start_destination', 'end_destination',
-                       'departure_time', 'arrival_time', 'price_per_ticket',
-                       'no_of_seats_booked', 'currency', 'total_amount']
+bkd_trip_attributes = ['route_id', 'partner_id', 'customer_id', 'no_of_seats_booked', 'total_amount']
 
 def desc_gen(missing_att_list):
     """Generates a description message with all attributes missing"""
@@ -32,25 +29,16 @@ def get_booked_trips():
     args = request.args
     if not args:
         trips_dict = storage.all(BookedTrip)
-        if not trips_dict:
-            abort(404)
         for trip_obj in trips_dict.values():
             trips_list.append(trip_obj.to_dict())
         return jsonify(trips_list)
 
-    start_dest = args.get('start_destination')
-    end_dest = args.get('end_destination')
-    if not start_dest:
-        abort(400, description='Missing start_destination in query string')
-    if not end_dest:
-        abort(400, description='Missing end_destination in query string')
-
+    route = args.get('route_id')
+    if not route:
+        abort(400, description='Missing route_id in query string')
     trips_dict = storage.all(BookedTrip)
-    if not trips_dict:
-        abort(404)
     for trip_obj in trips_dict.values():
-        if trip_obj.start_destination == start_dest and \
-           trip_obj.end_destination == end_dest:
+        if trip_obj.route_id == route:
             trips_list.append(trip_obj.to_dict())
 
     return jsonify(trips_list)
@@ -76,7 +64,7 @@ def delete_trip(trip_id):
 
     return make_response(jsonify({}), 200)
 
-@app_views.route('booked_trips/add_trip', methods=['POST'], strict_slashes=False)
+@app_views.route('booked_trips', methods=['POST'], strict_slashes=False)
 def add_new_trip():
     """Creates a new BookedTrip object"""
     if not request.get_json():

@@ -30,8 +30,6 @@ def get_matching_routes():
     args = request.args
     if not args:
         routes_dict = storage.all(Route)
-        if not routes_dict:
-            abort(404)
         for route_obj in routes_dict.values():
             routes_list.append(route_obj.to_dict())
         return jsonify(routes_list)
@@ -51,8 +49,6 @@ def get_matching_routes():
         abort(400, description='Missing end_destination in query string')
 
     routes_dict = storage.all(Route)
-    if not routes_dict:
-        abort(404)
     for route_obj in routes_dict.values():
         if route_obj.start_destination == start_dest and \
            route_obj.end_destination == end_dest:

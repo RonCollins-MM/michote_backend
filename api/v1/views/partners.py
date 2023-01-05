@@ -23,8 +23,7 @@ def get_all_partners():
     partner_list = []
 
     partner_dict = storage.all(Partner)
-    if not partner_dict:
-        abort(404)
+
     for partner_obj in partner_dict.values():
         partner_list.append(partner_obj.to_dict())
 

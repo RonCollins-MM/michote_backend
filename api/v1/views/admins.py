@@ -22,8 +22,6 @@ def get_all_admins():
     admins_list = []
 
     admins_dict = storage.all(Admin)
-    if not admins_dict:
-        abort(404)
     for admin_obj in admins_dict.values():
         admins_list.append(admin_obj.to_dict())
 

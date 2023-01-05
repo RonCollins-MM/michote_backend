@@ -23,8 +23,6 @@ def get_all_users():
     customer_list = []
 
     customer_dict = storage.all(Customer)
-    if not customer_dict:
-        abort(404)
     for customer_obj in customer_dict.values():
         customer_list.append(customer_obj.to_dict())
 
