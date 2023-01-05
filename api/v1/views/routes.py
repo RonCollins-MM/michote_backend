@@ -36,6 +36,13 @@ def get_matching_routes():
             routes_list.append(route_obj.to_dict())
         return jsonify(routes_list)
 
+    if args.get('partner_id'):
+        partner = args.get('partner_id')
+        routes_dict = storage.all(Route)
+        for route_obj in routes_dict.values():
+            if route_obj.partner_id == partner:
+                routes_list.append(route_obj.to_dict())
+
     start_dest = args.get('start_destination')
     end_dest = args.get('end_destination')
     if not start_dest:
