@@ -13,6 +13,7 @@ from models.admin import Admin
 from models.booked_trip import BookedTrip
 from models.base_model import Base
 from sqlalchemy.orm import scoped_session, sessionmaker
+import urllib.parse
 
 class DB_Storage:
     """Defines the database storage engine attributes"""
@@ -31,9 +32,10 @@ class DB_Storage:
         MICHOTE_MYSQL_HOST = getenv('MICHOTE_MYSQL_HOST')
         MICHOTE_MYSQL_DB = getenv('MICHOTE_MYSQL_DB')
         MICHOTE_ENV = getenv('MICHOTE_ENV')
+        
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
                                       format(MICHOTE_MYSQL_USER,
-                                             MICHOTE_MYSQL_PWD,
+                                             urllib.parse.quote_plus(MICHOTE_MYSQL_PWD),
                                              MICHOTE_MYSQL_HOST,
                                              MICHOTE_MYSQL_DB))
         if MICHOTE_ENV == 'test':

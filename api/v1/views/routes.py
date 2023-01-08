@@ -35,25 +35,30 @@ def get_matching_routes():
         return jsonify(routes_list)
 
     if args.get('partner_id'):
+        
         partner = args.get('partner_id')
         routes_dict = storage.all(Route)
         for route_obj in routes_dict.values():
             if route_obj.partner_id == partner:
                 routes_list.append(route_obj.to_dict())
+        return jsonify(routes_list)
 
-    start_dest = args.get('start_destination')
-    end_dest = args.get('end_destination')
-    if not start_dest:
-        abort(400, description='Missing start_destination in query string')
-    if not end_dest:
-        abort(400, description='Missing end_destination in query string')
+    if args.get('start_destination') and args.get('end_destination'):
+        start_dest = args.get('start_destination')
+        end_dest = args.get('end_destination')
+        if not start_dest:
+           abort(400, description='Missing start_destination in query string')
+        if not end_dest:
+           abort(400, description='Missing end_destination in query string')
 
-    routes_dict = storage.all(Route)
-    for route_obj in routes_dict.values():
-        if route_obj.start_destination == start_dest and \
-           route_obj.end_destination == end_dest:
-            routes_list.append(route_obj.to_dict())
+        routes_dict = storage.all(Route)
+        for route_obj in routes_dict.values():
+             if route_obj.start_destination.lower() == start_dest.lower() and \
+                route_obj.end_destination.lower() == end_dest.lower():
+                 routes_list.append(route_obj.to_dict())
 
+        return jsonify(routes_list)
+    
     return jsonify(routes_list)
 
 @app_views.route('/routes/<route_id>', methods=['GET'], strict_slashes=False)

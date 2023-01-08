@@ -9,7 +9,7 @@ from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, ForeignKey, Integer, DateTime
 from os import getenv
 
-DATETIME_ISO = '%Y-%m-%dT%H:%M:%S.%f'
+DATETIME_ISO = '%Y-%m-%dT%H:%M'
 
 class Route(BaseModel, Base):
     """Implementation of Route class"""

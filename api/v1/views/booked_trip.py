@@ -5,7 +5,9 @@
 from models import storage
 from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request
-from models.booked_trip import BookedTrip'
+from models.booked_trip import BookedTrip
+from models.route import Route
+
 
 bkd_trip_attributes = ['route_id', 'partner_id', 'customer_id', 'no_of_seats_booked', 'total_amount']
 
@@ -16,8 +18,8 @@ def desc_gen(missing_att_list):
         desc = desc + attr + ', '
     return desc[:-2]
 
-@app_views.route('/booked_trips', methods=['GET'], strict_slashes=False)
-def get_booked_trips():
+@app_views.route('/bookings', methods=['GET'], strict_slashes=False)
+def get_bookings():
     """Method called to get BookedTrip objects from storage.
 
     If a query string is passed with start_destination and end_destination, a
@@ -33,17 +35,25 @@ def get_booked_trips():
             trips_list.append(trip_obj.to_dict())
         return jsonify(trips_list)
 
-    route = args.get('route_id')
-    if not route:
-        abort(400, description='Missing route_id in query string')
-    trips_dict = storage.all(BookedTrip)
-    for trip_obj in trips_dict.values():
-        if trip_obj.route_id == route:
-            trips_list.append(trip_obj.to_dict())
+    if args('route_id'):
+        route = args.get('route_id')
+        trips_dict = storage.all(BookedTrip)
+        for trip_obj in trips_dict.values():
+            if trip_obj.route_id == route:
+                trips_list.append(trip_obj.to_dict())
+            
+        return jsonify(trips_list)
 
-    return jsonify(trips_list)
+    if args('customer_id'):
+        customer = args.get('customer_id')
+        trips_dict = storage.all(BookedTrip)
+        for trip_obj in trips_dict.values():
+            if trip_obj.customer_id == customer:
+                trips_list.append(trip_obj.to_dict())
+            
+        return jsonify(trips_list)
 
-@app_views.route('/booked_trips/<trip_id>', methods=['GET'], strict_slashes=False)
+@app_views.route('/bookings/<trip_id>', methods=['GET'], strict_slashes=False)
 def get_one_trip(trip_id):
     """Method called to get one BookedTrip object based on its id"""
     trip = storage.get(BookedTrip, trip_id)
@@ -52,7 +62,7 @@ def get_one_trip(trip_id):
         abort(404)
     return jsonify(trip.to_dict())
 
-@app_views.route('/booked_trips/<trip_id>', methods=['DELETE'], strict_slashes=False)
+@app_views.route('/bookings/<trip_id>', methods=['DELETE'], strict_slashes=False)
 def delete_trip(trip_id):
     """Deletes a specific trip record from storage"""
     trip = storage.get(BookedTrip, trip_id)
@@ -64,7 +74,7 @@ def delete_trip(trip_id):
 
     return make_response(jsonify({}), 200)
 
-@app_views.route('booked_trips', methods=['POST'], strict_slashes=False)
+@app_views.route('bookings', methods=['POST'], strict_slashes=False)
 def add_new_trip():
     """Creates a new BookedTrip object"""
     if not request.get_json():
@@ -83,7 +93,7 @@ def add_new_trip():
 
     return make_response(jsonify(trip_obj.to_dict()), 201)
 
-@app_views.route('booked_trips/<trip_id>', methods=['PUT'], strict_slashes=False)
+@app_views.route('bookings/<trip_id>', methods=['PUT'], strict_slashes=False)
 def update_trip(trip_id):
     """Updates BookedTrip information"""
     trip_obj = storage.get(BookedTrip, trip_id)
