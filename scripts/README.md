@@ -1,4 +1,4 @@
-# configs
+# scripts
 
 This directory contains all the script files used in setting up the apps environment.
 
