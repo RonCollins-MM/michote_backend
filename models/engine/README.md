@@ -1,6 +1,6 @@
 # Storage Engine
 
-This directory contains the modules that handle storage for all the models.
+This directory contains the modules that handle storage engine of Michote.
 
 Two storage engines exist:
 
