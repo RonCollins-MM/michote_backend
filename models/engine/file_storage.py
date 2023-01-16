@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 
-"""FileStorage engine module.
-
-This module handles file storage for all the modules.
-"""
+"""File storage engine for Michote"""
 
 import os
 import json
@@ -16,7 +13,20 @@ from models.customer import Customer
 from models.route import Route
 
 class FileStorage():
-    """FileStorage implementation class."""
+    """Handles file storage engine
+    
+    Attributes
+    ----------
+    __file_path : str
+        Path to the file storage
+    
+    __objects : dict
+        Will hold all the objects that are retreived from storage
+
+    __classes : dict
+         All valid classes in the Michote app. This private dict is used for
+        validation to ensure only objects of valid classes are created.  
+    """
 
     __file_path = 'models.json'
     __objects = {}
@@ -31,7 +41,22 @@ class FileStorage():
         pass
 
     def all(self, cls=None):
-        """Returns the dictionary __objects"""
+        """Returns the dict that contains all the objects that have been loaded
+        from storage.
+        
+        If class name is provided, only objects from that class are returned.
+        Otherwise, all objects in storage are returned.
+
+        Parameters
+        ----------
+        cls : str, optional
+            The class name whose objects are to be returned.
+
+        Returns
+        -------
+        dict
+            All objects that have been fetched from storage
+        """
         if cls == None:
             return self.__objects
         filtered_dict = {}
@@ -41,13 +66,20 @@ class FileStorage():
         return filtered_dict
 
     def new(self, obj):
-        """Adds a new object to __objects with the key <class_name>.<id>"""
+        """Adds a new object to storage with the key <class_name>.<id>
+        
+        Parameters
+        ----------
+        obj : object
+            Object to be added to storage
+        """
 
         new_key = f'{obj.__class__.__name__}.{obj.id}'
         self.__objects.update({new_key : obj})
 
     def save(self):
-        """Serializes __objects to the JSON file in __file_path"""
+        """Serializes objects in the dict variable to the JSON file
+        into the file given in the file path"""
 
         lcl_copy = self.__objects
         objects_as_dict = {key: lcl_copy[key].to_dict() for key in
@@ -57,7 +89,7 @@ class FileStorage():
             json_file.write(json.dumps(objects_as_dict))
 
     def reload(self):
-        """Deserializes the JSON file to __objects"""
+        """Deserializes the objects from storage into the dict variable"""
 
         dict_of_objects = {}
         if os.path.exists(self.__file_path):
@@ -69,7 +101,15 @@ class FileStorage():
             self.new(obj_to_add)
 
     def delete(self, obj=None):
-        """Delete object from __objects if it exists"""
+        """Delete object from __objects if it exists.
+
+        If no object is passed, does nothing.
+        
+        Parameters
+        ----------
+        obj : object, optional
+            Object to be deleted from storage
+        """
         if obj == None:
             return
         key = f'{obj.__class__.__name__}.{obj.id}'
@@ -82,7 +122,18 @@ class FileStorage():
         self.reload()
 
     def get(self, cls, id):
-        """Retrieves an object from storage"""
+        """Retrieves an object from storage based on its class and ID.
+
+        If class name or ID are invalid, does nothing.
+        
+        Parameters
+        ----------
+        cls : str
+            The class name whose object is to be received
+        
+        id : str
+            The ID of the object to be retreived
+        """
         if cls not in FileStorage.__classes.values():
             return None
 
@@ -94,5 +145,13 @@ class FileStorage():
         return None
 
     def count(self, cls=None):
-        """Counts the number of objects of a given class in storage"""
+        """Counts the number of objects of a given class in storage.
+
+        If no class is provided, all objects in storage are retreived.
+        
+        Parameters
+        ----------
+        cls : str
+            The class whose object is to be retreived.
+        """
         return len(self.all(cls))
