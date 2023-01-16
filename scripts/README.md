@@ -25,7 +25,7 @@ Example:
 
 ```bash
 $ cd michote/
-../michote/ $ cat script/setup_mysql_dev.sql | sudo mysql
+../michote/ $ cat scripts/setup_mysql_dev.sql | sudo mysql
 Enter password:
 ../michote/ $
 ```
