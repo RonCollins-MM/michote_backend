@@ -1,7 +1,9 @@
 # Storage Engine
 
 This directory contains the modules that handle storage for all the models.
+
 Two storage engines exist:
+
     1. Database storage - handled by the `db_storage.py` module
     2. File storage - handled by the `file_storage.py` module
 
