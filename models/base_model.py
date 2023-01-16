@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
-"""
-BaseClass Module - Contains implementation for the Base Class supercalss.
-"""
+"""Contains the BaseModel class definition."""
 
 import uuid
 import datetime
@@ -20,7 +18,35 @@ else:
 class BaseModel():
     """BaseModel class implementation.
 
-    Defines all the attributes and methods common to all child classes.
+    Defines attributes and methods common to all child classes. These will be
+    inherited by all child classes.
+
+    Attributes
+    ----------
+    id : str
+        Unique ID assigned to each object created
+    created_at : datetime obj
+        Time stamp of when the object was created
+    last_updated : datetime obj
+        Time stamp of when the object was last updated
+    DATETIME_ISO : str
+        ISO standard date time format string. Used with the `datetime.strptime`
+        method to convert datetime objects to string and vice versa.
+
+    Methods
+    -------
+    __init__(*args, **kwargs)
+        Creates a new object with attributes passed as a dictionary or as key-
+        value pairs.
+    __str__()
+        Prints the string representation of objects of this class or child
+        classes.
+    save()
+        Save an object of this class or child classes to storage
+    to_dict()
+        Converts the object from this class to dict objects with all attributes.
+    delete()
+        Deletes the object of this class or child classes from storage.
     """
 
     if models.storage_type == 'db':
@@ -56,19 +82,27 @@ class BaseModel():
             self.last_updated = self.created_at
 
     def __str__(self):
-        """Print this object"""
+        """Prints an object created from this class, or from child classes as
+        a string.
+        """
 
         return f'[{self.__class__.__name__}] ({self.id}) {self.__dict__}'
 
     def save(self):
-        """Save the instance"""
+        """Save an object of this class or child classes to storage"""
 
         self.last_updated = datetime.datetime.now()
         models.storage.new(self)
         models.storage.save()
 
     def to_dict(self):
-        """Convert this object to dict"""
+        """Convert this object to dict object containing all attributes.
+        
+        All datetime objects are first converted to string format before being
+        added to the dict.
+        if `_sa_instance_state` attribute exists (a result of SQLALchemy), it is
+        removed from the dict.
+        """
 
         obj_as_dict = self.__dict__.copy()
 
@@ -81,7 +115,6 @@ class BaseModel():
         return obj_as_dict
 
     def delete(self):
-        """Deletes the current instance from storage by calling
-        storage.delete() method
-        """
+        """Deletes the object of this class or child classes from storage."""
+
         models.storage.delete(self)

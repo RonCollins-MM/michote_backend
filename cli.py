@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""This module contains the definition of the command line interpreter (cli)
+"""This module contains the code for the command line interpreter (cli)
 for michote.
 
 The main purpose of the cli is to provide a shell-like interface for
@@ -22,19 +22,27 @@ from models.route import Route
 class MichoteCommand(cmd.Cmd):
     """Class definition for the command intepreter.
 
-    Inherits from the inbuilt ``cmd`` module. The inbuilt ``cmd`` module
-    contains the necessary tools (inherited attributes) to setup a custom
-    line-oriented command intepreter.
+    Inherits from the inbuilt `cmd` module. The inbuilt `cmd` module
+    contains the necessary tools (utilized as inherited attributes) to setup a 
+    custom line-oriented command intepreter.
+
+    Parameters
+    ----------
+    prompt: str
+        The string that is displayed to the user to indicate that the program is
+        ready to accept the next command. 
     """
 
     prompt = '\n(michote) => '
 
+    # Private dict for quick crosschecking of valid class types
     __classes = {
         'BaseModel': BaseModel, 'Customer': Customer,
         'BookedTrip': BookedTrip, 'Partner': Partner,
         'Admin': Admin, 'Route': Route
     }
 
+    # Private dict for type checking of certain parameters
     __types = {
         'age': int, 'price_per_ticket': int, 'total_amount': int,
         'latitude': float, 'longitude': float
@@ -42,7 +50,9 @@ class MichoteCommand(cmd.Cmd):
 
 
     # --------------- Utility Functions -------------------------- #
-
+    # Functions in this section are helper functions called by other functions
+    # or functions that to provide more information about other functions to 
+    # the user.
     def emptyline(self):
         """Method called when an emptyline is entered.
 
@@ -51,7 +61,7 @@ class MichoteCommand(cmd.Cmd):
         pass
 
     def help_help(self):
-        """Method called when ``help`` command is entered.
+        """Method called when `help` command is entered.
 
         Prints the useage of the help command.
         """
@@ -60,7 +70,7 @@ class MichoteCommand(cmd.Cmd):
         self.__usage('help')
 
     def do_quit(self, arg):
-        """Method called when ``quit`` command is entered.
+        """Method called when `quit` command is entered.
 
         Exits the command interpreter.
         """
@@ -68,7 +78,10 @@ class MichoteCommand(cmd.Cmd):
         return True
 
     def help_quit(self):
-        """Prints info on ``quit`` command to user."""
+        """Method called when `help quit` command is entered.
+        
+        Prints info on `quit` command to user.
+        """
         print('Use this command to exit the command line interpreter.')
         print('You may alternatively enter an `EOF` character.')
         self.__usage('quit')
@@ -82,48 +95,80 @@ class MichoteCommand(cmd.Cmd):
         return True
 
     def help_EOF(self):
-        """Print info on ``EOF`` command to user"""
+        """Method called when `help EOF` command is entered.
+        
+        Prints info on `EOF` command to user
+        """
         print('Use this command to exit the command line interpreter.')
         print('You may alternatively type the `quit` command.')
         self.__usage('EOF')
 
     def help_show(self):
-        """Print info on ``show`` command to user"""
+        """Method called when `help show` command is entered.
+        
+        Prints info on `show` command to user
+        """
         print('Use this command to print an object based on class name and ' +
               'object id')
         self.__usage('show')
 
     def help_create(self):
-        """Print info on ``create`` command to user"""
+        """Method called when `help create` command is entered.
+        
+        Prints info on `create` command to user
+        """
         print('Use this command to create a new object of a class.')
         self.__usage('create')
 
     def help_destroy(self):
-        """Print info on ``destroy`` command to user"""
+        """Method called when `help destroy` command is entered.
+        
+        Prints info on `destroy` command to user.
+        """
         print('Use this command to delete an object based on class name and ' +
               'object id')
         self.__usage('destroy')
 
     def help_all(self):
-        """Print info on ``all`` command to user"""
+        """Method called when `help all` command is entered.
+
+        Prints info on `all` command to user.
+        """
         print('Use this command to print an object based on class name and ' +
               'object id. ')
         self.__usage('all')
 
     def help_update(self):
-        """Print info on ``update`` command to user"""
+        """Method called when `help update` command is entered.
+        
+        Prints info on `update` command to user.
+        """
         print('Use this command to update an object based on class name and ' +
               'object id, with attribute name(s) and value(s)')
         self.__usage('update')
 
     def __avail_classes(self):
-        """Prints the valid classes that can be used with commands"""
+        """Prints the valid classes that can be used with commands to the user.
+
+        This method is called by other functions whenever the user enters a
+        class that is invalid.
+        """
         print('The following classes are available to use: ')
         for key in MichoteCommand.__classes.keys():
             print(f'\t{MichoteCommand.__classes[key].__name__}')
 
     def __usage(self, command):
-        """Prints the correct usage for each command to the user"""
+        """Prints the correct usage for each command to the user.
+        
+        This method is called by other methods immediately after a syntactical 
+        error is made by the user while typing a command. The method will
+        display the correct syntax of the respective command.
+
+        Parameters
+        ----------
+        command : str
+            The command whose usage is to be printed
+        """
         print('')
         if command == 'help':
             print('usage:\n\thelp <command>')
@@ -149,11 +194,20 @@ class MichoteCommand(cmd.Cmd):
             print('usage:\n\tall [<class_name>]\n\tClass name is optional')
 
     def _key_value_parser(self, args):
-        """Creates a dictionary or attributes from a list of key/value pairs.
+        """Creates a dictionary of attributes from a list of key/value pairs.
 
-        The list of key/value pairs is passed as a list of strings with the
-        format:
+        The list of key/value pairs is passed as an argument with the format:
             `["<key name>=<value>", ...]`
+
+        Parameters
+        ----------
+        args : List(str)
+            A list containing the key/value pairs as strings
+
+        Returns
+        -------
+        dict
+            a dict of attributes
         """
         attributes_dict = {}
         for key_val_pair in args:
@@ -183,13 +237,19 @@ class MichoteCommand(cmd.Cmd):
     # ------------- Core Functions ---------------------------------- #
 
     def do_create(self, args):
-        """Method called when ``create`` command is entered.
+        """Method called when `create` command is entered.
 
         Will create a new instance of the specified class.
         If no arguments are passed or if the arguments passed do not correspond
         to attributes of the class specified, an error message is printed.
         If object is created successfully, the id of the object is printed to
-        the commandline.
+        the terminal.
+
+        Parameters
+        ----------
+        args : list(str)
+            a list containing class name and all attributes needed to create an
+            object of a particular class.
         """
         if not args:
             print('** class name missing **\n')
@@ -210,11 +270,16 @@ class MichoteCommand(cmd.Cmd):
         print(new_instance.id)
 
     def do_show(self, args):
-        """Method called when ``show`` command is entered.
+        """Method called when `show` command is entered.
 
         Prints string representation of an instance based on class name and id.
-        The following scenarios will trigger an error message: class name
-        missing, class doesn't exist, id missing, instance not found.
+        An error message is printed when: class name is missing, id missing, 
+        instance not found.
+
+        Parameters
+        ----------
+        args : list(str)
+            A list containing the class name and id of the object to be shown.
         """
         # Get class name and id
         args_tuple = args.partition(' ')
@@ -247,7 +312,16 @@ class MichoteCommand(cmd.Cmd):
             print('** Object with that ID does not exist **')
 
     def do_destroy(self, args):
-        """Deletes an object based on its class name and ID."""
+        """Method called when `destroy` command is entered.
+        
+        Deletes an object based on its class name and ID. The following
+        scenarios trigger an error message:
+        1. Class name is not entered.
+        2. Class name entered does not correspond to defined classes.
+        3. No object with the provided ID is found.
+        Upon successful deletion of an object, a message confirming deletion is
+        printed to the user. 
+        """
         # get class name and id
         args_tuple = args.partition(' ')
         class_name = args_tuple[0]
@@ -281,7 +355,12 @@ class MichoteCommand(cmd.Cmd):
             print('** Object with that ID does not exist **')
 
     def do_all(self, args):
-        """Prints the string representation of all instances in storage"""
+        """Method called when `all` command is entered.
+        
+        Prints the string representation of objects in storage. If the class
+        name is provided, only objects from that class are printed. Otherwise,
+        all objects in storage are printed.
+        """
         objs_as_string = []
 
         if args:
@@ -299,7 +378,16 @@ class MichoteCommand(cmd.Cmd):
         print(json.dumps(objs_as_string, indent = 2))
 
     def do_update(self, args):
-        """Method used to update an object."""
+        """Method called when `update` command is entered.
+        
+        Updates an object's attributes based on its class name and ID. Class
+        name and ID must be provided - failure to do that will result in an
+        error message.
+        The attributes to be updated can be provided as *args or **kwargs.
+        Example:
+            1. *args: `update Customer name='FirstName' age=34`
+            2. **kwargs: `update Customer {"name": "FirstName", "age": 34}
+        """
         class_name = object_id = att_name = att_value = kwargs = ''
 
         # First, extract the class name and check if its valid

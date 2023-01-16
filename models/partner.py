@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""Contains Partner class"""
+"""Contains partner class implementation."""
 
 import models
 
@@ -12,7 +12,29 @@ from sqlalchemy.orm import relationship
 
 
 class Partner(BaseModel, Base):
-    """Implementation of booked trips class"""
+    """Parnter object definition.
+    
+    All attributes are mapped to a database column where the storage type is
+    database.
+
+    Attributes
+    ----------
+    partner_name : str
+        Name of partner company
+    phone_number : str
+        Phone number of partner company
+    email : str
+        Email of parnter company
+    country : str
+        Country where partner company is located.
+
+    Methods
+    -------
+    routes()
+        Getter method used to return all routes created by the current partner
+        object.
+    
+    """
 
     if models.storage_type == 'db':
         __tablename__ = 'partners'

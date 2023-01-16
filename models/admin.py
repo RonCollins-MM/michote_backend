@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""Contains Admin class"""
+"""This module contains the class definition for Admin entity"""
 
 import models
 
@@ -9,7 +9,10 @@ from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
 
 class Admin(BaseModel, Base):
-    """Admin Object definition"""
+    """Admin Object definition
+    
+    Attributes are mapped to MySQL database using SQLALchemy ORM.
+    """
 
     if models.storage_type == 'db':
         __tablename__ = 'admins'
