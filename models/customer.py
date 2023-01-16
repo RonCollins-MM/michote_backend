@@ -13,6 +13,7 @@ class Customer(BaseModel, Base):
 
     If storage type is database, all attributes are mapped to MySQL table
     columns.
+
     
     Attributes
     ----------
