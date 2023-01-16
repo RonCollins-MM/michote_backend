@@ -1,6 +1,6 @@
 # scripts
 
-This directory contains all the script files used in setting up the apps environment.
+This directory contains all the script files used in setting up the app's environment.
 
 ## generate_authors.sh
 
@@ -24,5 +24,7 @@ __Note__: Ensure mysql is installed first before running the script.
 Example:
 
 ```bash
-
+$ cd michote/
+../michote/ $ cat setup_mysql_dev.sql
+../michote/ $
 ```
